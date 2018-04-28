@@ -9,7 +9,7 @@ print("\n" * 100)
 
 def index_photos(username, password):
     #Set waits (go higher if slow internet)
-    main_wait = 0.5
+    main_wait = 1
     stuck_wait = 3
 
     #Start Browser
