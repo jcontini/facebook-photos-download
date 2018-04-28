@@ -1,21 +1,17 @@
 # Facebook Photo Downloader
-This tool lets you download all of the Facebook photos that you are tagged in. It keeps track of the dates that each photo was uploaded to Facebook, so that your photos will still be organized by date when they are added to a digital photo organized like Google Photos or iPhoto.
+This tool lets you download all of the Facebook photos that you are tagged in. It keeps track of the dates that each photo was uploaded to Facebook, so that your photos will still be organized by date when they are added to a photo management platform like Google Photos or iPhoto.
 
 ![Metadata Example](https://raw.githubusercontent.com/jcontini/fb-photo-downloader/master/example.png)
 
-The script does this in 2 steps:
-1) Create an index of all the photos and metadata (date, description, etc)
-2) Download all of the photos and write metadata to them (EXIF)
-
 ## Installation
+You'll need to have python, pip, and [Google Chrome](https://www.google.com/chrome/) installed to use this tool. Once that's all set up:
+
 1. Clone this repository
 1. `cd` into the cloned folder 
 1. Run `pip install -r requirements.txt`
 
-This tool uses Google Chrome to download the photos, so be sure to [install Chrome](https://www.google.com/chrome/) before using.
-
 ## Usage
-To download your tagged photos, run this with your FB username & password:
+To download your tagged photos, run this with your Facebook username & password:
 
 `python get-tagged-photos.py -u your@email.com -p yourpassword`
 
