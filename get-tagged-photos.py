@@ -45,7 +45,7 @@ def index_photos(username, password):
     while True:
         time.sleep(main_wait)
         try:
-            user = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftAuthorName"]/a')))
+            user = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftAuthorName"]//a')))
             media_url = wait.until(EC.presence_of_element_located((By.XPATH, "//img[@class='spotlight']"))).get_attribute('src')
             is_video = "showVideo" in driver.find_element_by_css_selector(".stageWrapper").get_attribute("class")
         except selenium.common.exceptions.StaleElementReferenceException:
