@@ -1,4 +1,4 @@
-import argparse, sys, os, time, wget, json, piexif
+import argparse, sys, os, time, wget, json, piexif, ssl
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -45,7 +45,7 @@ def index_photos(username, password):
     while True:
         time.sleep(main_wait)
         try:
-            user = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftAuthorName"]/a')))
+            user = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftAuthorName"]//a')))
             media_url = wait.until(EC.presence_of_element_located((By.XPATH, "//img[@class='spotlight']"))).get_attribute('src')
             is_video = "showVideo" in driver.find_element_by_css_selector(".stageWrapper").get_attribute("class")
         except selenium.common.exceptions.StaleElementReferenceException:
@@ -95,6 +95,7 @@ def index_photos(username, password):
         f.close()
 
 def download_photos():
+    ssl._create_default_https_context = ssl._create_unverified_context
     #Prep the download folder
     folder = 'photos/'
     if not os.path.exists(folder):
