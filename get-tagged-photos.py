@@ -9,7 +9,7 @@ print("\n" * 100)
 
 def index_photos(username, password):
     #Set waits (go higher if slow internet)
-    main_wait = 1
+    main_wait = 0.2
     stuck_wait = 3
 
     #Start Browser
@@ -32,8 +32,12 @@ def index_photos(username, password):
     driver.find_element_by_id("loginbutton").click()
 
     #Nav to photos I'm tagged in page
+    print("-"*20 + "\nGoing to my Photos...")
+    driver.find_element_by_id("navItem_751980550").click()
+    time.sleep(2)
     print("-"*20 + "\nScanning Photos...")
-    driver.find_element_by_id("navItem_2305272732").click()
+    driver.find_element_by_partial_link_text("Photos").click()
+
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "uiMediaThumbImg")))
     driver.find_elements_by_css_selector(".uiMediaThumbImg")[0].click()
     time.sleep(2)
@@ -53,7 +57,7 @@ def index_photos(username, password):
 
         doc = {
             'fb_url': driver.current_url,
-            'fb_date': wait.until(EC.presence_of_element_located((By.CLASS_NAME, "timestampContent"))).text,
+            'fb_date': wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftTimestamp"]//a'))).text,
             'fb_caption': wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftCaption"]'))).text,
             'fb_tags': wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftTagList"]'))).text.replace('\u2014 ',''),
             'media_url': media_url,
