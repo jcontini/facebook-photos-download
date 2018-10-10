@@ -1,4 +1,4 @@
-import argparse, sys, os, time, wget, json, piexif, ssl
+import argparse, sys, os, time, wget, json, piexif, ssl, urllib
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -113,8 +113,17 @@ def download_photos():
                 if os.path.exists(new_filename):
                     print("-"*20 + "\nFile Exists, Skipping: %s" % (new_filename))
                 else:
-                    img_file = wget.download(d['media_url'], new_filename, False)
+                    delay = 1
 
+                    while True:
+                        try:
+                            print("Downloading " + d['media_url'])
+                            img_file = wget.download(d['media_url'], new_filename, False)
+                            break
+                        except (TimeoutError, urllib.error.URLError) as e:
+                            print("Sleeping for {} seconds".format(delay))
+                            time.sleep(delay)
+                            delay *= 2
                     #Update EXIF Date Created
                     exif_dict = piexif.load(img_file)
                     exif_date = parse(d['fb_date']).strftime("%Y:%m:%d %H:%M:%S")
