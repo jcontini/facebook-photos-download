@@ -32,8 +32,13 @@ def index_photos(username, password):
     driver.find_element_by_id("loginbutton").click()
 
     #Nav to photos I'm tagged in page
+    print('-' * 20 + '\nNavigating to profile view of user tagged photos...')
+    prof_btn_xpath = '//a[@title="Profile"]'
+    wait.until(EC.presence_of_element_located((By.XPATH, prof_btn_xpath)))
+    profile_path = driver.find_element(By.XPATH, prof_btn_xpath).get_attribute('href')
+    driver.get(profile_path.rstrip('/') + '/photos')
+
     print("-"*20 + "\nScanning Photos...")
-    driver.find_element_by_id("navItem_2305272732").click()
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "uiMediaThumbImg")))
     driver.find_elements_by_css_selector(".uiMediaThumbImg")[0].click()
     time.sleep(2)
