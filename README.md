@@ -4,7 +4,7 @@ This tool lets you download all of the Facebook photos that you are tagged in. I
 ![Metadata Example](https://raw.githubusercontent.com/jcontini/fb-photo-downloader/master/example.png)
 
 ## Installation
-You'll need to have python, pip, and [Google Chrome](https://www.google.com/chrome/) installed to use this tool. Once that's all set up:
+You'll need to have python3, pip3, and chromedriver installed to use this tool. Once that's all set up:
 
 1. Clone this repository
 1. `cd` into the cloned folder 
