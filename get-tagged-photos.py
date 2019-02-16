@@ -9,10 +9,8 @@ from dateutil.parser import parse
 from datetime import datetime
 from datetime import timedelta
 
-print("\n" * 100)
-
 def start_session(username, password):
-    print("-"*20 + "\nOpening Browser...")
+    print("Opening Browser...")
     wd_options = Options()
     wd_options.add_argument("--disable-notifications")
     wd_options.add_argument("--disable-infobars")
@@ -22,7 +20,7 @@ def start_session(username, password):
 
     #Login
     driver.get("https://www.facebook.com/")
-    print("-"*20 + "\nLogging In...")
+    print("Logging In...")
     email_id = driver.find_element_by_id("email")
     pass_id = driver.find_element_by_id("pass")
     email_id.send_keys(username)
@@ -38,11 +36,11 @@ def index_photos():
     stuck_wait = 3
 
     #Nav to photos I'm tagged in page
-    print("-"*20 + "\nNavigating to photos of you...")
+    print("Navigating to photos of you...")
     profile_url = driver.find_elements_by_css_selector('[data-type="type_user"] a:nth-child(2)')[0].get_attribute("href")
     photos_url = 'https://www.facebook.com' + profile_url.split('com')[1].split('?')[0] + "/photos_of"
     driver.get(photos_url)
-    print("-"*20 + "\nScanning Photos...")
+    print("Scanning Photos...")
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "uiMediaThumbImg")))
     driver.find_elements_by_css_selector(".uiMediaThumbImg")[0].click()
     time.sleep(2)
@@ -75,18 +73,18 @@ def index_photos():
         #Check to see if photo didn't refresh or if last photo
         if len(data['tagged'])>0:
             if (doc['media_type'] == 'image') and (data['tagged'][-1]['media_url'] == doc['media_url']):
-                print("-"*20 + "\nPhoto stuck. Waiting %s seconds..." % (stuck_wait),end="",flush=True)
+                print("Photo stuck. Waiting %s seconds..." % (stuck_wait),end="",flush=True)
                 time.sleep(stuck_wait)
                 photo_now = driver.find_element(By.XPATH, "//img[@class='spotlight']").get_attribute('src')
                 if data['tagged'][-1]['media_url'] == photo_now:
-                    print("-"*20 + "\nStill stuck. Clicking Next again...",end="",flush=True)
+                    print("Still stuck. Clicking Next again...",end="",flush=True)
                     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".snowliftPager.next"))).click()
-                    print("-"*20 + "\nGot it. Scanning the page again...")
+                    print("Got it. Scanning the page again...")
                     continue
                 print('OK, that worked. Moving on...')
 
             if driver.current_url == data['tagged'][0]['fb_url']:
-                print("-"*20 + "\nDone Indexing! Last Photo: %s" % (driver.current_url))
+                print("-"*20 + "Done Indexing! Last Photo: %s" % (driver.current_url))
                 break
 
         #Get album if present
@@ -109,7 +107,7 @@ def download_photos():
     folder = 'photos/'
     if not os.path.exists(folder):
         os.makedirs(folder)
-    print("-"*20 + "\nSaving photos to " + folder)
+    print("Saving photos to " + folder)
     #Download the photos
     with open('tagged.json') as json_file:
         data = json.load(json_file)
@@ -126,7 +124,7 @@ def download_photos():
                 img_id = d['media_url'].split('_')[1]
                 new_filename = folder + filename_date + '_' + img_id + '.jpg'
                 if os.path.exists(new_filename):
-                    print("\nAlready Exists (Skipping): %s" % (new_filename))
+                    print("Already Exists (Skipping): %s" % (new_filename))
                 else:
                     delay = 1
 
@@ -160,15 +158,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Facebook Scraper')
     parser.add_argument('-u', type = str,help='FB Username')
     parser.add_argument('-p', type = str,help='FB Password')
-    parser.add_argument('--download', action='store_true', help='Download photos')
+    parser.add_argument('--download', action='store_true', help='Download photos only')
     parser.add_argument('--index', action='store_true', help='Index photos')
     args = parser.parse_args()
-    if args.index:
-        driver = start_session(args.u,args.p)
-        index_photos()
-    if args.download:
-        download_photos()
-    if not args.index and not args.download:
-        driver = start_session(args.u,args.p)
-        index_photos()
-        download_photos()
+    try:
+        if args.download:
+            download_photos()
+        else:
+            if not (args.u and args.p):
+                print('Please try again with FB credentials (use -u -p)')
+            else:
+                driver = start_session(args.u,args.p)
+                index_photos()
+                if not args.index:
+                    download_photos()
+    except KeyboardInterrupt:
+        print('\nThanks for using the script! Please raise any issues at: https://github.com/jcontini/fb-photo-downloader/issues/new')
+        pass
