@@ -11,12 +11,7 @@ from datetime import timedelta
 
 print("\n" * 100)
 
-def index_photos(username, password):
-    #Set waits (go higher if slow internet)
-    main_wait = 1
-    stuck_wait = 3
-
-    #Start Browser
+def start_session(username, password):
     print("-"*20 + "\nOpening Browser...")
     wd_options = Options()
     wd_options.add_argument("--disable-notifications")
@@ -24,10 +19,9 @@ def index_photos(username, password):
     wd_options.add_argument("--mute-audio")
     wd_options.add_argument("--start-maximized")
     driver = webdriver.Chrome(chrome_options=wd_options)
-    wait = WebDriverWait(driver, 10)
-    driver.get("https://www.facebook.com/")
 
-    #Log In
+    #Login
+    driver.get("https://www.facebook.com/")
     print("-"*20 + "\nLogging In...")
     email_id = driver.find_element_by_id("email")
     pass_id = driver.find_element_by_id("pass")
@@ -35,10 +29,18 @@ def index_photos(username, password):
     pass_id.send_keys(password)
     driver.find_element_by_id("loginbutton").click()
 
+    return driver
+
+def index_photos():
+    #Set waits (go higher if slow internet)
+    wait = WebDriverWait(driver, 10)
+    main_wait = 1
+    stuck_wait = 3
+
     #Nav to photos I'm tagged in page
-    print("-"*20 + "\nNavigating to photos...")
-    driver.find_element_by_id("navItem_1447680434").click()
-    photos_url = driver.current_url + "/photos"
+    print("-"*20 + "\nNavigating to photos of you...")
+    profile_url = driver.find_elements_by_css_selector('[data-type="type_user"] a:nth-child(2)')[0].get_attribute("href")
+    photos_url = 'https://www.facebook.com' + profile_url.split('com')[1].split('?')[0] + "/photos_of"
     driver.get(photos_url)
     print("-"*20 + "\nScanning Photos...")
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "uiMediaThumbImg")))
@@ -124,7 +126,7 @@ def download_photos():
                 img_id = d['media_url'].split('_')[1]
                 new_filename = folder + filename_date + '_' + img_id + '.jpg'
                 if os.path.exists(new_filename):
-                    print("-"*20 + "\nFile Exists, Skipping: %s" % (new_filename))
+                    print("\nAlready Exists (Skipping): %s" % (new_filename))
                 else:
                     img_file = wget.download(d['media_url'], new_filename, False)
 
@@ -153,9 +155,11 @@ if __name__ == '__main__':
     parser.add_argument('--index', action='store_true', help='Index photos')
     args = parser.parse_args()
     if args.index:
-        index_photos(args.u,args.p)
+        driver = start_session(args.u,args.p)
+        index_photos()
     if args.download:
         download_photos()
     if not args.index and not args.download:
-        index_photos(args.u,args.p)
+        driver = start_session(args.u,args.p)
+        index_photos()
         download_photos()
