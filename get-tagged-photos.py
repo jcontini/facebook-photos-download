@@ -4,15 +4,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common import exceptions
 from dateutil.parser import parse
+from datetime import datetime
+from datetime import timedelta
+
 print("\n" * 100)
 
-def index_photos(username, password):
-    #Set waits (go higher if slow internet)
-    main_wait = 1
-    stuck_wait = 3
-
-    #Start Browser
+def start_session(username, password):
     print("-"*20 + "\nOpening Browser...")
     wd_options = Options()
     wd_options.add_argument("--disable-notifications")
@@ -20,10 +19,9 @@ def index_photos(username, password):
     wd_options.add_argument("--mute-audio")
     wd_options.add_argument("--start-maximized")
     driver = webdriver.Chrome(chrome_options=wd_options)
-    wait = WebDriverWait(driver, 10)
-    driver.get("https://www.facebook.com")
 
-    #Log In
+    #Login
+    driver.get("https://www.facebook.com/")
     print("-"*20 + "\nLogging In...")
     email_id = driver.find_element_by_id("email")
     pass_id = driver.find_element_by_id("pass")
@@ -31,9 +29,20 @@ def index_photos(username, password):
     pass_id.send_keys(password)
     driver.find_element_by_id("loginbutton").click()
 
+    return driver
+
+def index_photos():
+    #Set waits (go higher if slow internet)
+    wait = WebDriverWait(driver, 10)
+    main_wait = 1
+    stuck_wait = 3
+
     #Nav to photos I'm tagged in page
+    print("-"*20 + "\nNavigating to photos of you...")
+    profile_url = driver.find_elements_by_css_selector('[data-type="type_user"] a:nth-child(2)')[0].get_attribute("href")
+    photos_url = 'https://www.facebook.com' + profile_url.split('com')[1].split('?')[0] + "/photos_of"
+    driver.get(photos_url)
     print("-"*20 + "\nScanning Photos...")
-    driver.find_element_by_id("navItem_2305272732").click()
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "uiMediaThumbImg")))
     driver.find_elements_by_css_selector(".uiMediaThumbImg")[0].click()
     time.sleep(2)
@@ -48,7 +57,7 @@ def index_photos(username, password):
             user = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="fbPhotoSnowliftAuthorName"]//a')))
             media_url = wait.until(EC.presence_of_element_located((By.XPATH, "//img[@class='spotlight']"))).get_attribute('src')
             is_video = "showVideo" in driver.find_element_by_css_selector(".stageWrapper").get_attribute("class")
-        except selenium.common.exceptions.StaleElementReferenceException:
+        except exceptions.StaleElementReferenceException:
             continue
 
         doc = {
@@ -107,11 +116,17 @@ def download_photos():
         for i,d in enumerate(data['tagged']):
             if d['media_type'] == 'image':
                 #Save new file
-                filename_date = parse(d['fb_date']).strftime("%Y-%m-%d")
+                if d['fb_date'] == "Today":
+                    filename_date = datetime.today().strftime('%Y-%m-%d')
+                elif d['fb_date'] == "Yesterday":
+                    filename_date = datetime.today() - timedelta(days=1)
+                    filename_date = filename_date.strftime('%Y-%m-%d')
+                else:
+                    filename_date = parse(d['fb_date']).strftime("%Y-%m-%d")
                 img_id = d['media_url'].split('_')[1]
                 new_filename = folder + filename_date + '_' + img_id + '.jpg'
                 if os.path.exists(new_filename):
-                    print("-"*20 + "\nFile Exists, Skipping: %s" % (new_filename))
+                    print("\nAlready Exists (Skipping): %s" % (new_filename))
                 else:
                     delay = 1
 
@@ -126,7 +141,13 @@ def download_photos():
                             delay *= 2
                     #Update EXIF Date Created
                     exif_dict = piexif.load(img_file)
-                    exif_date = parse(d['fb_date']).strftime("%Y:%m:%d %H:%M:%S")
+                    if d['fb_date'] == "Today":
+                        exif_date = datetime.today().strftime("%Y:%m:%d %H:%M:%S")
+                    elif d['fb_date'] == "Yesterday":
+                        exif_date = datetime.today() - timedelta(days=1)
+                        exif_date = exif_date.strftime("%Y:%m:%d %H:%M:%S")
+                    else:
+                        exif_date = parse(d['fb_date']).strftime("%Y:%m:%d %H:%M:%S")
                     img_desc = d['fb_caption'] + '\n' + d['fb_tags'] + '\n' + d['fb_url'].split("&")[0]
                     exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] = exif_date
                     exif_dict['0th'][piexif.ImageIFD.Copyright] = (d['user_name'] + ' (' + d['user_url']) + ')'
@@ -143,9 +164,11 @@ if __name__ == '__main__':
     parser.add_argument('--index', action='store_true', help='Index photos')
     args = parser.parse_args()
     if args.index:
-        index_photos(args.u,args.p)
+        driver = start_session(args.u,args.p)
+        index_photos()
     if args.download:
         download_photos()
     if not args.index and not args.download:
-        index_photos(args.u,args.p)
+        driver = start_session(args.u,args.p)
+        index_photos()
         download_photos()
