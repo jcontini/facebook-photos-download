@@ -4,7 +4,7 @@ This tool lets you download all of the Facebook photos that you are tagged in. I
 ![Metadata Example](https://raw.githubusercontent.com/jcontini/fb-photo-downloader/master/example.png)
 
 ## Installation
-You'll need to have python, pip, and [Google Chrome WebDriver](http://chromedriver.chromium.org/downloads) installed to use this tool. Once that's all set up:
+You'll need to have python, pip3, and [Google Chrome WebDriver](http://chromedriver.chromium.org/downloads) installed to use this tool. Once that's all set up:
 
 1. Clone this repository
 1. `cd` into the cloned folder 
@@ -42,3 +42,8 @@ This script works by first creating an index of all the photos that you are tagg
 - Name, Profile URL, and user ID of the person who uploaded the photo
 
 All of this metadata is only stored on your computer, and you can see it in `tagged.json`. Once the indexing process is complete, the script will then download all of the photos to your computer, and then use this index to write the metadata to them so that it's safe with the photo file.
+
+## Thanks
+Wanted to give a shoult to the good folks who contribute pull requests to improve this project. Thank you!
+
+@nhwalton @mbologna @KyleKing
