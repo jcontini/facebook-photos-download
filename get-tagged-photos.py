@@ -111,6 +111,7 @@ def download_photos():
     #Download the photos
     with open('tagged.json') as json_file:
         data = json.load(json_file)
+        print(len(data['tagged']))
         for i,d in enumerate(data['tagged']):
             if d['media_type'] == 'image':
                 #Save new file
@@ -151,8 +152,11 @@ def download_photos():
                     exif_dict['0th'][piexif.ImageIFD.Copyright] = (d['user_name'] + ' (' + d['user_url']) + ')'
                     exif_dict['0th'][piexif.ImageIFD.ImageDescription] = img_desc.encode('utf-8')
 
-                    piexif.insert(piexif.dump(exif_dict), img_file)
-                    print(str(i+1) + ') Added '+ new_filename)
+                    try: 
+                        piexif.insert(piexif.dump(exif_dict), img_file)
+                        print(str(i+1) + ') Added '+ new_filename)
+                    except UnboundLocalError:
+                        print("Something went wrong with the last download.\nTry running this script again with --download.")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Facebook Scraper')
