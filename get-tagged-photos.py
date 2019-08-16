@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common import exceptions
 from dateutil.parser import parse
 from datetime import datetime
@@ -16,7 +17,7 @@ def start_session(username, password):
     wd_options.add_argument("--disable-infobars")
     wd_options.add_argument("--mute-audio")
     wd_options.add_argument("--start-maximized")
-    driver = webdriver.Chrome(chrome_options=wd_options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=wd_options)
 
     #Login
     driver.get("https://www.facebook.com/")
