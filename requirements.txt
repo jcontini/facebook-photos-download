@@ -2,5 +2,5 @@ argparse==1.4.0
 piexif==1.1.2
 python-dateutil==2.7.5
 selenium==3.141.0
-urllib3==1.24.1
+urllib3==1.24.2
 wget==3.2
