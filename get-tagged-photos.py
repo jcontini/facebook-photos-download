@@ -168,8 +168,7 @@ if __name__ == '__main__':
             if not (args.u and args.p):
                 print('Please try again with FB credentials (use -u -p)')
             else:
-                driver = start_session(args.u,args.p)
-                index_photos()
+                index_photos(start_session(args.u,args.p))
                 if not args.index:
                     download_photos()
     except KeyboardInterrupt:
