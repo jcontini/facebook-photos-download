@@ -154,7 +154,7 @@ def download_photos():
                     piexif.insert(piexif.dump(exif_dict), img_file)
                     print(str(i+1) + ') Added '+ new_filename)
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Facebook Scraper')
     parser.add_argument('-u', type = str,help='FB Username')
     parser.add_argument('-p', type = str,help='FB Password')
@@ -174,3 +174,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nThanks for using the script! Please raise any issues at: https://github.com/jcontini/fb-photo-downloader/issues/new')
         pass
+
+if __name__ == '__main__':
+    main()
